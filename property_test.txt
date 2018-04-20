@@ -1,0 +1,7 @@
+SenderID=SHB
+writeFilePath=C:/1/
+serverIP=180.166.165.178
+serverPort=7567
+startTime=15:00:00
+endTime=15:00:00
+title=IntradayForBTG

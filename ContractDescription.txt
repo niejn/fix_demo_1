@@ -1,0 +1,36 @@
+c,Corn
+a,Soybean
+b,Soybean
+m,Soybean Meal
+y,Soybean Oil
+p,Palm Oil
+l,LLDPE
+v,PVC
+j,Coke
+cu,Cu
+al,AL
+zn,Zn
+pb,Pb
+au,Au
+ag,Ag
+rb,Rb
+wr,Wr
+fu,Fu
+ru,Ru
+WS,Wheat
+WH,Wheat
+PM,Wheat
+CF,cotton
+SR,Sugar
+TA,Pta
+RO,Rapeseed oil
+OI,Rapeseed oil
+ER,Early long-grain nonglutinous rice
+RI,Early long-grain nonglutinous rice
+ME,Methyl Alcohol
+IF,IF
+FG,Glass
+RM,Rapeseed meal
+RS,Rapeseed
+jm,Coking coal
+----------

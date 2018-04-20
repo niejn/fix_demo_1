@@ -1,0 +1,7 @@
+SenderID=ESolution1
+writeFilePath=E:/ºãÉúfix/log/
+serverIP=211.95.40.133
+serverPort=7567
+startTime=11:45:00
+endTime=11:20:00
+title=IntradayForBTG
