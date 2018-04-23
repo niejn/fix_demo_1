@@ -67,7 +67,7 @@ public class TradeDataByFix extends javax.swing.JFrame {
         jLabel3.setName("jLabel3"); // NOI18N
 
         jTextField1.setText(configClass.getserverIP());// for real 
-       //jTextField1.setText("210.13.87.3");// for test 
+       //jTextField1.setText("210.13.87.3");// for demo
        //jTextField1.setText("211.144.195.153");// for real 
         jTextField1.setName("jTextField1"); // NOI18N
 

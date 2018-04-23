@@ -98,7 +98,7 @@ public class Session {
     public static final String SETTING_MAX_LATENCY = "MaxLatency";
 
     /**
-     * Session setting for the test delay multiplier (0-1, as fraction of Heartbeat interval)
+     * Session setting for the demo delay multiplier (0-1, as fraction of Heartbeat interval)
      */
     public static final String SETTING_TEST_REQUEST_DELAY_MULTIPLIER = "TestRequestDelayMultiplier";
 
@@ -1539,7 +1539,7 @@ public class Session {
             }
 
             // Handle poss dup where msgSeq is as expected
-            // FIX 4.4 Vol 2, test case 2f&g
+            // FIX 4.4 Vol 2, demo case 2f&g
             if (isPossibleDuplicate(msg) && !validatePossDup(msg)) {
                 return false;
             }
@@ -1751,7 +1751,7 @@ public class Session {
         } else {
             if (state.isTestRequestNeeded()) {
                 generateTestRequest("TEST");
-                getLog().onEvent("Sent test request TEST");
+                getLog().onEvent("Sent demo request TEST");
                 stateListener.onMissedHeartBeat();
             } else if (state.isHeartBeatNeeded()) {
                 generateHeartbeat();

@@ -37,7 +37,7 @@ public class GetTradeData {
     //private static RCFrameViewNew rcf;
     private static TradeDataByFix mb;
     private static Thread tr=null;
-    //private static String sendID = "ESolution1";// for test 
+    //private static String sendID = "ESolution1";// for demo
     private static String sendID = configClass.getSenderID(); // for real back 
     //private static String sendID = "DRW"; // for real
     public GetTradeData(TradeDataByFix mbd){
@@ -58,7 +58,8 @@ public class GetTradeData {
                     SessionSettings settings = createSettings();
                     sessionID = settings.sectionIterator().next();
                     //register the class
-                    initiator = new SocketInitiator(new ApplicationTrade(sessionID, mb), new FileStoreFactory(settings), settings, new ScreenLogFactory(settings), new DefaultMessageFactory());
+                    initiator = new SocketInitiator(new ApplicationTrade(sessionID, mb), new FileStoreFactory(settings),
+                            settings, new ScreenLogFactory(settings), new DefaultMessageFactory());
                     initiator.start();
                     Thread.sleep(3000);
                     //new CountDownLatch(5).await();
@@ -103,6 +104,9 @@ public class GetTradeData {
         defaults.put("ReconnectInterval", "5");
         defaults.put("ScreenIncludeMilliseconds", "Y");
         defaults.put("BeginString", BEGINSTRING_FIX44);
+        //E:\ºãÉúfix\BTG_Intraday\FIX44_Futu.xml
+        defaults.put("UseDataDictionary", "Y");
+        defaults.put("DataDictionary", "E:\\ºãÉúfix\\BTG_Intraday\\FIX44_Futu.xml");
         settings.set(defaults);
 
         //settings.setString(new SessionID(BEGINSTRING_FIX44, senderCompID, "CiticNewedge"), "SocketConnectPort", "7568");

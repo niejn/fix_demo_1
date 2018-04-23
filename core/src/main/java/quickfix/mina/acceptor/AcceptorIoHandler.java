@@ -88,7 +88,7 @@ class AcceptorIoHandler extends AbstractIoHandler {
         }
     
         if (qfSession == null) {
-            // [QFJ-117] this can happen if a late test request arrives after we 
+            // [QFJ-117] this can happen if a late demo request arrives after we
             // gave up waiting and closed the session.
             log.error("Attempt to process message for non existant or closed session (only "
                     + "legal action for logon messages). MsgType="

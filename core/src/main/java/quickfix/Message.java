@@ -540,7 +540,7 @@ public class Message extends FieldMap {
             }
 
             if (isHeaderField(field.getField())) {
-                // An acceptance test requires the sequence number to
+                // An acceptance demo requires the sequence number to
                 // be available even if the related field is out of order
                 setField(header, field);
                 throw new FieldException(SessionRejectReason.TAG_SPECIFIED_OUT_OF_REQUIRED_ORDER,

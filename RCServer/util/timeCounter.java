@@ -23,8 +23,8 @@ public class timeCounter {
 	private String mytime1 = "0830";// for real 
 	private String refreshTime = "0840";// for real
 	 
-//	private String mytime1 = "1028";// for test 
-//	private String refreshTime = "1029";// for test
+//	private String mytime1 = "1028";// for demo
+//	private String refreshTime = "1029";// for demo
 	
 	private int iswriteFlag = 0;// 0 not write yet,1  have writen 
 	public timeCounter(int minutes,TradeDataStruct tds1) {
