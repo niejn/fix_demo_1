@@ -1,4 +1,4 @@
-SenderID=ESolution
+SenderID=ESolution1
 writeFilePath=E:/ºãÉúfix/log/
 serverIP=211.95.40.133
 serverPort=7567

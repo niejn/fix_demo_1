@@ -7,6 +7,7 @@ import quickfix.*;
 import quickfix.field.*;
 import util.TradeDataStructManager;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,8 +37,30 @@ public class FooApplication extends MessageCracker implements Application {
         System.out.println("onCreate" + sessionId.toString());
         MySessionID = sessionId;
         _session = Session.lookupSession(MySessionID);
-    }
+        try {
+//            _session.reset();
+            _session.setNextSenderMsgSeqNum(938);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println(e.toString());
+        }
+//        try {
+//            _session.setNextSenderMsgSeqNum(919);
+//        }catch (Exception ex){
+//            System.out.println(ex.toString());
+//        }
 
+    }
+    /*
+    * Session lookupSession = Session.lookupSession(sessionId);
+                if(resetMsgSeqNum) {
+                        //both are required.
+                        lookupSession.setNextSenderMsgSeqNum(msgSeqNum);
+        lookupSession.setNextTargetMsgSeqNum(msgSeqNum);
+                } else {
+                        lookupSession.reset();
+                }
+    */
     /**
      * This callback notifies you when a valid logon has been established with a
      * counter party. This is called when a connection has been established and
@@ -64,7 +87,18 @@ public class FooApplication extends MessageCracker implements Application {
 //    OnLogout - notifies when a session is offline - either from an exchange of logout messages or network connectivity loss.
     @Override
     public void onLogout(SessionID sessionId) {
+//        session.reset();
         System.out.println("onLogout" + sessionId.toString());
+//        int expectedSeqNum = message.getInt(789);
+//        session.setNextSenderMsgSeqNum(expectedSeqNum);
+//        session.logon();
+//        try {
+//            _session.reset();
+//            _session.logon();
+//        }catch (Exception ex){
+//            System.out.println(ex.toString());
+//        }
+
     }
 
     /**
@@ -81,8 +115,7 @@ public class FooApplication extends MessageCracker implements Application {
     @Override
     public void toAdmin(Message message, SessionID sessionId) {
         System.out.println("toAdmin " + message.toString());
-//        System.out.println("toAdmin");
-//        message.getGroups()
+
     }
 
     /**
@@ -102,6 +135,23 @@ public class FooApplication extends MessageCracker implements Application {
     @Override
     public void fromAdmin(Message message, SessionID sessionId) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
         System.out.println("fromAdmin " + message.toString());
+//        Session lookupSession = _session;
+////        (8=FIX.4.49=11835=534=98849=CiticNewedge52=20180424-12:34:33.82856=ESolution158=MsgSeqNum too low, expecting 931 but received 110=010)
+//        int expectedSeqNum = message.getInt(789);
+//        try {
+//            if(true) {
+//                //both are required.
+//                lookupSession.setNextSenderMsgSeqNum(expectedSeqNum);
+//                lookupSession.setNextTargetMsgSeqNum(expectedSeqNum);
+////                lookupSession.logon();
+//            } else {
+//                lookupSession.reset();
+////                lookupSession.logon();
+//            }
+//        }catch (Exception ex){
+//            System.out.println(ex.toString());
+//        }
+
     }
 
     /**
@@ -207,7 +257,7 @@ public class FooApplication extends MessageCracker implements Application {
             System.out.println("message.getExecType().getValue()== ExecType.NEW:" + message.toString());
 
 
-        }else if(message.getOrdStatus().getValue()==ExecType.NEW){
+        }else if(message.getOrdStatus().getValue()==OrdStatus.NEW){
             System.out.println("message.getOrdStatus().getValue()==ExecType.NEW:" + message.toString());
         }else {
             return;
@@ -245,12 +295,29 @@ public class FooApplication extends MessageCracker implements Application {
         {
             str_side = "BUY";
         }
-        String tmprice = ""+message.getLastPx().getValue();
+        String tmprice = ""+message.getPrice().getValue();
         String order_id = message.getOrderID().getValue();
-        String tradeID= message.getExecID().getValue();
+        char ExecType= message.getExecType().getValue();
+        String str_ExecType = "";
+        if (ExecType == '0'){
+            str_ExecType = "NEW";
+        }
+        char orderStatus = message.getOrdStatus().getValue();
+        String exchange_name = message.getSecurityExchange().getValue();
+        final int OffSet_FIELD = 5001;
+        String offset = message.getString(OffSet_FIELD);
+        final int HedgeFlag_FIELD = 5006;
+        String hedgeFlag = message.getString(OffSet_FIELD);
+        double qty = message.getOrderQty().getValue();
+        double leavesQty = message.getLeavesQty().getValue();
+//        char offset = message.getDiscretionOffsetValue();
+//        char offset = messat();
         String parse_tag = " ";
+//        10013102 DCE j1705 SELL 0.0 2053.0 0 15
         System.out.println("" + account + parse_tag + exchange + parse_tag + Symbol+ parse_tag + str_side +
-                parse_tag + tmpquant + parse_tag + tmprice + parse_tag + tradeID + parse_tag + order_id);
+                parse_tag + qty + parse_tag + tmprice + parse_tag + str_ExecType + parse_tag + orderStatus + parse_tag
+                + offset + parse_tag + leavesQty + parse_tag +hedgeFlag + parse_tag + exchange_name
+                + parse_tag + order_id);
 
     }
 
@@ -264,7 +331,7 @@ public class FooApplication extends MessageCracker implements Application {
         if (m != null) {
 //            m.Header.GetField(tags.BeginString);
 
-            SendMessage(m);
+//            SendMessage(m);
             System.out.println("\n==================Order Submitted!!!==================");
 
         }

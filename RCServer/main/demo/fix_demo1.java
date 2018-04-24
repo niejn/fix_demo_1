@@ -90,6 +90,7 @@ public class fix_demo1 {
         //settings.setString(new SessionID(BEGINSTRING_FIX44, senderCompID, "CiticNewedge"), "SocketConnectPort", "7568");
         //sessionQualifer用于区分具有相同的targetCompID不同的session
         settings.setString(new SessionID(BEGINSTRING_FIX44, SenderID, "CiticNewedge", "citicsf"), "SocketConnectPort", serverPort);
+//        settings.setString(new SessionID(BEGINSTRING_FIX44, SenderID, "CiticNewedge"), "SocketConnectPort", serverPort);
         /*
         * 4. quickfix.SessionID：是Session的唯一标识。SessionID中包含beginString（必须），senderCompID（必须），
         * senderSubID （可选），senderLocationID（可选），targetCompID（必须），targetSubID（可选），
