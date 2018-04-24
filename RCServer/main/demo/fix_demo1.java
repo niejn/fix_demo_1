@@ -118,7 +118,7 @@ public class fix_demo1 {
 //        String fileName = args[0];
 
         // FooApplication is your class that implements the Application interface
-        Application application = new FooApplication(sessionID);
+//        Application application = new FooApplication(sessionID);
         SessionSettings settings = createSettings();
         sessionID = settings.sectionIterator().next();
 //        SessionSettings settings = new SessionSettings(new FileInputStream(fileName));

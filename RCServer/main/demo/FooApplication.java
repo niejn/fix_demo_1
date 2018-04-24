@@ -1,10 +1,22 @@
 package main.demo;
 
+//import MyQuickfix.ApplicationTrade;
+import data.SecurityStatus;
 import quickfix.*;
+import quickfix.field.*;
+import util.TradeDataStructManager;
+
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 //public class ApplicationTrade extends MessageCracker implements quickfix.Application
 public class FooApplication extends MessageCracker implements Application {
-    public FooApplication(SessionID sessionID) {
+    public static SessionID MySessionID  = null;
+    private Session _session = null;
 
+    public FooApplication(SessionID sessionID) {
+        System.out.println("FooApplication" + sessionID.toString());
     }
 
     /**
@@ -17,9 +29,12 @@ public class FooApplication extends MessageCracker implements Application {
      *
      * @param sessionId
      */
+//    OnCreate - this method is called whenever a new session is created.
     @Override
     public void onCreate(SessionID sessionId) {
-
+        System.out.println("onCreate" + sessionId.toString());
+        MySessionID = sessionId;
+        _session = Session.lookupSession(MySessionID);
     }
 
     /**
@@ -30,9 +45,10 @@ public class FooApplication extends MessageCracker implements Application {
      *
      * @param sessionId QuickFIX session ID
      */
+//    OnLogon - notifies when a successful logon has completed.
     @Override
     public void onLogon(SessionID sessionId) {
-
+        System.out.println("onLogon" + sessionId.toString());
     }
 
     /**
@@ -42,9 +58,10 @@ public class FooApplication extends MessageCracker implements Application {
      *
      * @param sessionId QuickFIX session ID
      */
+//    OnLogout - notifies when a session is offline - either from an exchange of logout messages or network connectivity loss.
     @Override
     public void onLogout(SessionID sessionId) {
-
+        System.out.println("onLogout" + sessionId.toString());
     }
 
     /**
@@ -57,9 +74,11 @@ public class FooApplication extends MessageCracker implements Application {
      * @param message   QuickFIX message
      * @param sessionId
      */
+//    ToAdmin - all outbound admin level messages pass through this callback.
     @Override
     public void toAdmin(Message message, SessionID sessionId) {
-
+        System.out.println("toAdmin "+ message.toString());
+//        System.out.println("toAdmin");
     }
 
     /**
@@ -75,9 +94,10 @@ public class FooApplication extends MessageCracker implements Application {
      * @throws IncorrectTagValue
      * @throws RejectLogon         causes a logon reject
      */
+//    FromAdmin - every inbound admin level message will pass through this method, such as heartbeats, logons, and logouts.
     @Override
     public void fromAdmin(Message message, SessionID sessionId) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
-
+        System.out.println("fromAdmin "+ message.toString());
     }
 
     /**
@@ -97,9 +117,10 @@ public class FooApplication extends MessageCracker implements Application {
      * @throws DoNotSend --
      *                   This exception aborts message transmission
      */
+//    ToApp - all outbound application level messages pass through this callback before they are sent. If a tag needs to be added to every outgoing message, this is a good place to do that.
     @Override
     public void toApp(Message message, SessionID sessionId) throws DoNotSend {
-
+        System.out.println("toApp" + message.toString());
     }
 
     /**
@@ -124,8 +145,132 @@ public class FooApplication extends MessageCracker implements Application {
      * @throws IncorrectTagValue
      * @throws UnsupportedMessageType
      */
+//    FromApp - every inbound application level message will pass through this method, such as orders, executions, secutiry definitions, and market data.
     @Override
     public void fromApp(Message message, SessionID sessionId) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
+        System.out.println("fromApp" + message.toString());
+//        Crack(msg, sessionID);
+        //Crack will then call the appropriate overloaded OnMessage
+        try
+        {
+            crack(message, sessionId);
+        }
+        catch (Exception ex)
+        {
+//            Console.WriteLine("==Cracker exception==");
+//            Console.WriteLine(ex.ToString());
+//            Console.WriteLine(ex.StackTrace);
+            System.out.println("==Cracker exception==");
+            System.out.println(ex.toString());
+            ex.printStackTrace();
+//            System.out.println(ex.printStackTrace(););
+        }
+        crack(message, sessionId);
+    }
+
+    //Receiving messages in QuickFIX/N is type safe and simple:
+    public void OnMessage(quickfix.fix44.NewOrderSingle order, SessionID sessionID){
+        System.out.println("NewOrderSingle:" + order.toString());
+    }
+
+    public void onMessage(quickfix.fix44.MarketDataSnapshotFullRefresh message, SessionID sessionID){
+        System.out.println("MarketDataSnapshotFullRefresh:" + message.toString());
+        System.out.println("On MEssage");
 
     }
+
+
+    public void onMessage(quickfix.fix44.SecurityList message, SessionID sessionID){
+        System.out.println("SecurityList:" + message.toString());
+
+        //message.g
+    }
+
+
+    public void onMessage(quickfix.fix44.SecurityStatus message, SessionID sessionID){
+        System.out.println("SecurityStatus:" + message.toString());
+
+    }
+
+    public void onMessage(quickfix.fix44.SecurityDefinition message, SessionID sessionID){
+        System.out.println("SecurityDefinition:" + message.toString());
+
+    }
+
+    /* To recieve Execution report
+     */
+    public void onMessage(quickfix.fix44.ExecutionReport message, SessionID sessionID){
+        System.out.println("ExecutionReport:" + message.toString());
+
+    }
+
+//    #region Message creation functions
+    /*        private QuickFix.FIX44.NewOrderSingle QueryNewOrderSingle44()
+        {
+            QuickFix.Fields.OrdType ordType = null;
+
+            QuickFix.FIX44.NewOrderSingle newOrderSingle = new QuickFix.FIX44.NewOrderSingle(
+                QueryClOrdID(),
+                QuerySymbol(),
+                QuerySide(),
+                new TransactTime(DateTime.Now),
+                ordType = QueryOrdType());
+
+            newOrderSingle.Set(new HandlInst('1'));
+            newOrderSingle.Set(QueryOrderQty());
+            newOrderSingle.Set(QueryTimeInForce());
+            if (ordType.getValue() == OrdType.LIMIT || ordType.getValue() == OrdType.STOP_LIMIT)
+                newOrderSingle.Set(QueryPrice());
+            if (ordType.getValue() == OrdType.STOP || ordType.getValue() == OrdType.STOP_LIMIT)
+                newOrderSingle.Set(QueryStopPx());
+
+            return newOrderSingle;
+        }
+         private void QueryEnterOrder()
+        {
+            Console.WriteLine("\nNewOrderSingle");
+
+            QuickFix.FIX44.NewOrderSingle m = QueryNewOrderSingle44();
+
+            if (m != null && QueryConfirm("Send order"))
+            {
+                m.Header.GetField(Tags.BeginString);
+
+                SendMessage(m);
+            }
+        }
+
+        */
+    private quickfix.fix44.NewOrderSingle QueryNewOrderSingle44()
+    {
+        quickfix.field.TriggerOrderType ordType = null;
+//        quickfix.field.AllocNoOrdersType
+
+        quickfix.fix44.NewOrderSingle newOrderSingleRequest = new quickfix.fix44.NewOrderSingle();
+        newOrderSingleRequest.set(new ClOrdID("test"));
+        newOrderSingleRequest.set(new OrderQty(1));
+        newOrderSingleRequest.set(new OrdType('2'));
+        newOrderSingleRequest.set(new Price(4001));
+        newOrderSingleRequest.set(new Side('1'));
+        newOrderSingleRequest.set(new Symbol("ag1807"));
+        newOrderSingleRequest.set(new TransactTime(new Date()));
+        newOrderSingleRequest.set(new HedgeFlag(00));
+//        _session.send(newOrderSingleRequest);
+
+        return newOrderSingleRequest;
+
+    }
+
+    private void SendMessage(Message m)
+    {
+        if (_session != null)
+//            _session.send
+            _session.send(m);
+        else
+        {
+            // This probably won't ever happen.
+            System.out.println("Can't send message: session not created.");
+        }
+    }
+
 }
