@@ -8,6 +8,7 @@ import quickfix.*;
 
 import java.io.FileInputStream;
 
+import quickfix.field.*;
 import util.*;
 import data.SecurityStatus;
 
@@ -24,29 +25,12 @@ import quickfix.MessageCracker;
 import quickfix.RejectLogon;
 import quickfix.SessionID;
 import quickfix.UnsupportedMessageType;
-import quickfix.field.ExecType;
-import quickfix.field.MsgSeqNum;
-import quickfix.field.OrdStatus;
-import quickfix.field.Symbol;
-import quickfix.field.SecurityStatusReqID;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.field.Account;
-import quickfix.field.Password;
 import quickfix.SessionNotFound;
 import quickfix.Session;
-import quickfix.field.MDEntryPx;
-import quickfix.field.MDEntrySize;
-import quickfix.field.MDUpdateType;
 
 import java.util.Timer;
 
-import quickfix.field.MDEntryType;
-import quickfix.field.MDReqID;
-import quickfix.field.MarketDepth;
-import quickfix.field.Side;
 import quickfix.fix44.component.Instrument;
-import quickfix.field.SecurityListRequestType;
-import quickfix.field.SecurityReqID;
 
 
 import java.util.Map;
@@ -57,10 +41,6 @@ import java.util.Iterator;
 import output.readBakData;
 import output.writeBakData;
 import output.writeMarketData;
-import quickfix.field.HighPx;
-import quickfix.field.LowPx;
-import quickfix.field.MDEntryTime;
-import quickfix.field.SecurityExchange;
 
 import static quickfix.FixVersions.BEGINSTRING_FIX44;
 
@@ -108,8 +88,18 @@ public class fix_demo1 {
         settings.set(defaults);
 
         //settings.setString(new SessionID(BEGINSTRING_FIX44, senderCompID, "CiticNewedge"), "SocketConnectPort", "7568");
-        settings.setString(new SessionID(BEGINSTRING_FIX44, SenderID, "CiticNewedge"), "SocketConnectPort", serverPort);
-
+        //sessionQualifer用于区分具有相同的targetCompID不同的session
+        settings.setString(new SessionID(BEGINSTRING_FIX44, SenderID, "CiticNewedge", "citicsf"), "SocketConnectPort", serverPort);
+        /*
+        * 4. quickfix.SessionID：是Session的唯一标识。SessionID中包含beginString（必须），senderCompID（必须），
+        * senderSubID （可选），senderLocationID（可选），targetCompID（必须），targetSubID（可选），
+        * targetSubID（可选），targetLocationID（可选），sessionQualifier（可选）。
+        * sessionQualifer用于区分具有相同的targetCompID不同的session，只能用在initiator角色中。
+        * SessionID.toString生成的可读的Session ID字符串组成为：
+        * beginString:senderCompID/senderSubID/senderLocationID->
+        * targetCompID/targetSubID/targetLocationID/sessionQualifier。
+        * 如果可选值未设置则在Session ID字符串中默认空字符串。
+        * */
         return settings;
     }
 
@@ -133,6 +123,27 @@ public class fix_demo1 {
 //        acceptor.start();
         // while(condition == true) { do something; }
         initiator.start();
+
+//        quickfix.fix44.TradeCaptureReport tcr = new quickfix.fix44.TradeCaptureReport();
+////        tcr.addGroup();
+////        var tcr = new quickfifix.FIX44.TradeCaptureReport();
+//        quickfix.fix44.TradeCaptureReport.NoSides sidesGrp1 = new quickfix.fix44.TradeCaptureReport.NoSides();
+//        sidesGrp1.set(new Account("Silvio"));
+//        sidesGrp1.set(new OrderID("09011900"));
+//        sidesGrp1.set(new Side(Side.BUY));
+//        tcr.addGroup(sidesGrp1);
+////        sidesGrp1.Account = new Account("Silvio");
+////        sidesGrp1.OrderID = new OrderID("09011900");
+////        sidesGrp1.Side = new Side(Side.BUY);
+//        quickfix.fix44.TradeCaptureReport.NoSides noSidesGrp = new quickfix.fix44.TradeCaptureReport.NoSides();
+////        quickfix.fix44.Message
+//
+//        for(int grpIndex = 1; grpIndex<= Message.GetInt(Tags.NoSides); grpIndex += 1)
+//        {
+//            message.GetGroup(grpIndex, noSidesGrp);
+//            // ...do stuff with noSidesGrp...
+//        }
+
         while (true){
 
         }

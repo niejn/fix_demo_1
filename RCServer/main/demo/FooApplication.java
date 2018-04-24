@@ -1,6 +1,7 @@
 package main.demo;
 
 //import MyQuickfix.ApplicationTrade;
+
 import data.SecurityStatus;
 import quickfix.*;
 import quickfix.field.*;
@@ -12,7 +13,7 @@ import java.util.logging.Logger;
 
 //public class ApplicationTrade extends MessageCracker implements quickfix.Application
 public class FooApplication extends MessageCracker implements Application {
-    public static SessionID MySessionID  = null;
+    public static SessionID MySessionID = null;
     private Session _session = null;
 
     public FooApplication(SessionID sessionID) {
@@ -48,7 +49,9 @@ public class FooApplication extends MessageCracker implements Application {
 //    OnLogon - notifies when a successful logon has completed.
     @Override
     public void onLogon(SessionID sessionId) {
+
         System.out.println("onLogon" + sessionId.toString());
+        QueryEnterOrder();
     }
 
     /**
@@ -77,8 +80,9 @@ public class FooApplication extends MessageCracker implements Application {
 //    ToAdmin - all outbound admin level messages pass through this callback.
     @Override
     public void toAdmin(Message message, SessionID sessionId) {
-        System.out.println("toAdmin "+ message.toString());
+        System.out.println("toAdmin " + message.toString());
 //        System.out.println("toAdmin");
+//        message.getGroups()
     }
 
     /**
@@ -97,7 +101,7 @@ public class FooApplication extends MessageCracker implements Application {
 //    FromAdmin - every inbound admin level message will pass through this method, such as heartbeats, logons, and logouts.
     @Override
     public void fromAdmin(Message message, SessionID sessionId) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
-        System.out.println("fromAdmin "+ message.toString());
+        System.out.println("fromAdmin " + message.toString());
     }
 
     /**
@@ -151,98 +155,122 @@ public class FooApplication extends MessageCracker implements Application {
         System.out.println("fromApp" + message.toString());
 //        Crack(msg, sessionID);
         //Crack will then call the appropriate overloaded OnMessage
-        try
-        {
+        try {
             crack(message, sessionId);
-        }
-        catch (Exception ex)
-        {
-//            Console.WriteLine("==Cracker exception==");
-//            Console.WriteLine(ex.ToString());
-//            Console.WriteLine(ex.StackTrace);
+        } catch (Exception ex) {
+
             System.out.println("==Cracker exception==");
             System.out.println(ex.toString());
             ex.printStackTrace();
-//            System.out.println(ex.printStackTrace(););
+
         }
-        crack(message, sessionId);
+
     }
 
     //Receiving messages in QuickFIX/N is type safe and simple:
-    public void OnMessage(quickfix.fix44.NewOrderSingle order, SessionID sessionID){
+    public void OnMessage(quickfix.fix44.NewOrderSingle order, SessionID sessionID) {
         System.out.println("NewOrderSingle:" + order.toString());
     }
 
-    public void onMessage(quickfix.fix44.MarketDataSnapshotFullRefresh message, SessionID sessionID){
+    public void onMessage(quickfix.fix44.MarketDataSnapshotFullRefresh message, SessionID sessionID) {
         System.out.println("MarketDataSnapshotFullRefresh:" + message.toString());
         System.out.println("On MEssage");
 
     }
 
 
-    public void onMessage(quickfix.fix44.SecurityList message, SessionID sessionID){
+    public void onMessage(quickfix.fix44.SecurityList message, SessionID sessionID) {
         System.out.println("SecurityList:" + message.toString());
 
         //message.g
     }
 
 
-    public void onMessage(quickfix.fix44.SecurityStatus message, SessionID sessionID){
+    public void onMessage(quickfix.fix44.SecurityStatus message, SessionID sessionID) {
         System.out.println("SecurityStatus:" + message.toString());
 
     }
 
-    public void onMessage(quickfix.fix44.SecurityDefinition message, SessionID sessionID){
+    public void onMessage(quickfix.fix44.SecurityDefinition message, SessionID sessionID) {
         System.out.println("SecurityDefinition:" + message.toString());
 
     }
 
     /* To recieve Execution report
      */
-    public void onMessage(quickfix.fix44.ExecutionReport message, SessionID sessionID){
+    public void onMessage(quickfix.fix44.ExecutionReport message, SessionID sessionID) throws FieldNotFound {
         System.out.println("ExecutionReport:" + message.toString());
+//        String account = msg.GetString(Tags.Account);
+//        Decimal price = msg.GetDecimal(Tags.Price);
+        if(message.getExecType().getValue()== ExecType.NEW) {
+
+            System.out.println("message.getExecType().getValue()== ExecType.NEW:" + message.toString());
+
+
+        }else if(message.getOrdStatus().getValue()==ExecType.NEW){
+            System.out.println("message.getOrdStatus().getValue()==ExecType.NEW:" + message.toString());
+        }else {
+            return;
+        }
+
+        String datetmp = "";
+        if(message. getExecID().valueEquals("0")){
+            //NO exce ID, ignore it
+            System.out.println("NO exce ID, ignore it:" + message.toString());
+        }
+        String tmpdate = message.getDate();
+        if(tmpdate == null)
+        {
+
+        }else
+        {
+            System.out.println(tmpdate);
+            String tmpDateArray[]= tmpdate.split("-");
+            datetmp = tmpDateArray[0];
+        }
+        String account = message.getAccount().getValue();
+
+
+
+
+        String exchange = message.getSecurityExchange().getValue();
+        String Symbol = message.getSymbol().getValue();
+        char sidetmp = message.getSide().getValue();
+        String tmpquant = "" +message.getLastQty().getValue();
+        String str_side = "";
+        if (sidetmp == Side.SELL)
+        {
+            str_side = "SELL";
+        }else
+        {
+            str_side = "BUY";
+        }
+        String tmprice = ""+message.getLastPx().getValue();
+        String order_id = message.getOrderID().getValue();
+        String tradeID= message.getExecID().getValue();
+        String parse_tag = " ";
+        System.out.println("" + account + parse_tag + exchange + parse_tag + Symbol+ parse_tag + str_side +
+                parse_tag + tmpquant + parse_tag + tmprice + parse_tag + tradeID + parse_tag + order_id);
 
     }
 
-//    #region Message creation functions
-    /*        private QuickFix.FIX44.NewOrderSingle QueryNewOrderSingle44()
-        {
-            QuickFix.Fields.OrdType ordType = null;
+    //    #region Message creation functions
 
-            QuickFix.FIX44.NewOrderSingle newOrderSingle = new QuickFix.FIX44.NewOrderSingle(
-                QueryClOrdID(),
-                QuerySymbol(),
-                QuerySide(),
-                new TransactTime(DateTime.Now),
-                ordType = QueryOrdType());
+    private void QueryEnterOrder() {
+        System.out.println("\nNewOrderSingle");
 
-            newOrderSingle.Set(new HandlInst('1'));
-            newOrderSingle.Set(QueryOrderQty());
-            newOrderSingle.Set(QueryTimeInForce());
-            if (ordType.getValue() == OrdType.LIMIT || ordType.getValue() == OrdType.STOP_LIMIT)
-                newOrderSingle.Set(QueryPrice());
-            if (ordType.getValue() == OrdType.STOP || ordType.getValue() == OrdType.STOP_LIMIT)
-                newOrderSingle.Set(QueryStopPx());
+        quickfix.fix44.NewOrderSingle m = QueryNewOrderSingle44();
 
-            return newOrderSingle;
+        if (m != null) {
+//            m.Header.GetField(tags.BeginString);
+
+            SendMessage(m);
+            System.out.println("\n==================Order Submitted!!!==================");
+
         }
-         private void QueryEnterOrder()
-        {
-            Console.WriteLine("\nNewOrderSingle");
+    }
 
-            QuickFix.FIX44.NewOrderSingle m = QueryNewOrderSingle44();
-
-            if (m != null && QueryConfirm("Send order"))
-            {
-                m.Header.GetField(Tags.BeginString);
-
-                SendMessage(m);
-            }
-        }
-
-        */
-    private quickfix.fix44.NewOrderSingle QueryNewOrderSingle44()
-    {
+    private quickfix.fix44.NewOrderSingle QueryNewOrderSingle44() {
         quickfix.field.TriggerOrderType ordType = null;
 //        quickfix.field.AllocNoOrdersType
 
@@ -254,20 +282,24 @@ public class FooApplication extends MessageCracker implements Application {
         newOrderSingleRequest.set(new Side('1'));
         newOrderSingleRequest.set(new Symbol("ag1807"));
         newOrderSingleRequest.set(new TransactTime(new Date()));
-        newOrderSingleRequest.set(new HedgeFlag(00));
+        newOrderSingleRequest.setField(new HedgeFlag(0));
+        newOrderSingleRequest.set(new Account("10013102"));
+        newOrderSingleRequest.set(new Password("111111"));
+        newOrderSingleRequest.set(new HandlInst('1'));
+        newOrderSingleRequest.set(new SecurityExchange("SHFE"));
+        newOrderSingleRequest.setField(new Offset('1'));
+//        newOrderSingleRequest.set(new HedgeFlag(0));
 //        _session.send(newOrderSingleRequest);
 
         return newOrderSingleRequest;
 
     }
 
-    private void SendMessage(Message m)
-    {
+    private void SendMessage(Message m) {
         if (_session != null)
 //            _session.send
             _session.send(m);
-        else
-        {
+        else {
             // This probably won't ever happen.
             System.out.println("Can't send message: session not created.");
         }
