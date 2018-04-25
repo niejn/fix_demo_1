@@ -85,6 +85,10 @@ public class fix_demo1 {
         //E:\ºãÉúfix\BTG_Intraday\FIX44_Futu.xml
         defaults.put("UseDataDictionary", "Y");
         defaults.put("DataDictionary", "E:\\ºãÉúfix\\BTG_Intraday\\FIX44_Futu.xml");
+        defaults.put("ResetOnLogon", "Y");
+        defaults.put("ResetOnLogout", "Y");
+        defaults.put("ResetOnDisconnect", "Y");
+
         settings.set(defaults);
 
         //settings.setString(new SessionID(BEGINSTRING_FIX44, senderCompID, "CiticNewedge"), "SocketConnectPort", "7568");
@@ -113,6 +117,7 @@ public class fix_demo1 {
         SessionSettings settings = createSettings();
         sessionID = settings.sectionIterator().next();
 //        SessionSettings settings = new SessionSettings(new FileInputStream(fileName));
+//        LogoutTimeout
         SocketInitiator initiator = null;
         initiator = new SocketInitiator(new FooApplication(sessionID), new FileStoreFactory(settings),
                 settings, new ScreenLogFactory(settings), new DefaultMessageFactory());
