@@ -67,6 +67,7 @@ public class fix_demo1 {
         String title = "IntradayForBTG";
 
         Map defaults = new HashMap<String, String>();
+//        FileStorePath
         defaults.put("FileStorePath", "examples/target/data/banzai");
         defaults.put("ConnectionType", "initiator");
         defaults.put("TargetCompID", "CiticNewedge");
@@ -83,12 +84,16 @@ public class fix_demo1 {
         defaults.put("ScreenIncludeMilliseconds", "Y");
         defaults.put("BeginString", BEGINSTRING_FIX44);
         //E:\恒生fix\BTG_Intraday\FIX44_Futu.xml
+        //"E:/恒生fix/log/"
+        //E:/恒生fix/BTG_Intraday/FIX44_Futu.xml
         defaults.put("UseDataDictionary", "Y");
-        defaults.put("DataDictionary", "E:\\恒生fix\\BTG_Intraday\\FIX44_Futu.xml");
-        defaults.put("ResetOnLogon", "Y");
-        defaults.put("ResetOnLogout", "Y");
-        defaults.put("ResetOnDisconnect", "Y");
-
+        defaults.put("DataDictionary", "E:/恒生fix/BTG_Intraday/FIX44_Futu.xml");
+//        defaults.put("ResetOnLogon", "Y");
+//        defaults.put("ResetOnLogout", "Y");
+//        defaults.put("ResetOnDisconnect", "Y");
+//        defaults.put("ResetOnError", "Y");
+        //NextExpectedMsgSeqNum
+        defaults.put("EnableNextExpectedMsgSeqNum", "Y");
         settings.set(defaults);
 
         //settings.setString(new SessionID(BEGINSTRING_FIX44, senderCompID, "CiticNewedge"), "SocketConnectPort", "7568");

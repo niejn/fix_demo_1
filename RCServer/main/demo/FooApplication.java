@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 //public class ApplicationTrade extends MessageCracker implements quickfix.Application
 public class FooApplication extends MessageCracker implements Application {
@@ -20,6 +22,8 @@ public class FooApplication extends MessageCracker implements Application {
     public FooApplication(SessionID sessionID) {
         System.out.println("FooApplication" + sessionID.toString());
     }
+
+    private int expectedSeqSum = 0;
 
     /**
      * This method is called when quickfix creates a new session. A session
@@ -37,13 +41,7 @@ public class FooApplication extends MessageCracker implements Application {
         System.out.println("onCreate" + sessionId.toString());
         MySessionID = sessionId;
         _session = Session.lookupSession(MySessionID);
-        try {
-//            _session.reset();
-            _session.setNextSenderMsgSeqNum(938);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println(e.toString());
-        }
+        setExpectedSeqSum();
 //        try {
 //            _session.setNextSenderMsgSeqNum(919);
 //        }catch (Exception ex){
@@ -61,6 +59,7 @@ public class FooApplication extends MessageCracker implements Application {
                         lookupSession.reset();
                 }
     */
+
     /**
      * This callback notifies you when a valid logon has been established with a
      * counter party. This is called when a connection has been established and
@@ -89,16 +88,24 @@ public class FooApplication extends MessageCracker implements Application {
     public void onLogout(SessionID sessionId) {
 //        session.reset();
         System.out.println("onLogout" + sessionId.toString());
-//        int expectedSeqNum = message.getInt(789);
-//        session.setNextSenderMsgSeqNum(expectedSeqNum);
-//        session.logon();
-//        try {
-//            _session.reset();
-//            _session.logon();
-//        }catch (Exception ex){
-//            System.out.println(ex.toString());
-//        }
+        setExpectedSeqSum();
 
+
+    }
+
+    private void setExpectedSeqSum() {
+        try {
+
+            if (expectedSeqSum > 0) {
+                _session.setNextSenderMsgSeqNum(expectedSeqSum);
+            } else {
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println(e.toString());
+        }
     }
 
     /**
@@ -131,26 +138,40 @@ public class FooApplication extends MessageCracker implements Application {
      * @throws IncorrectTagValue
      * @throws RejectLogon         causes a logon reject
      */
+    /*收到的消息序列号小于所期望的序列号。则会产生Logout消息，并断开连接，这时对方收到后，要么手动处理，
+    要么自动尝试重新登录连接自动增长序列号，直到和对方望值一样时候，双方建立会话
+    (注意：一般的FIX引擎在断开的时候，不会增长接收序列号，是为了让对方自动增长序列号，以达到自动重新连接的目的）
+    * */
 //    FromAdmin - every inbound admin level message will pass through this method, such as heartbeats, logons, and logouts.
     @Override
     public void fromAdmin(Message message, SessionID sessionId) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
         System.out.println("fromAdmin " + message.toString());
-//        Session lookupSession = _session;
-////        (8=FIX.4.49=11835=534=98849=CiticNewedge52=20180424-12:34:33.82856=ESolution158=MsgSeqNum too low, expecting 931 but received 110=010)
-//        int expectedSeqNum = message.getInt(789);
-//        try {
-//            if(true) {
-//                //both are required.
-//                lookupSession.setNextSenderMsgSeqNum(expectedSeqNum);
-//                lookupSession.setNextTargetMsgSeqNum(expectedSeqNum);
-////                lookupSession.logon();
-//            } else {
-//                lookupSession.reset();
-////                lookupSession.logon();
-//            }
-//        }catch (Exception ex){
-//            System.out.println(ex.toString());
-//        }
+//        message.getField();
+        final int Text_FIELD = 58;
+        if (message.isSetField(Text_FIELD)) {
+            String msg = message.getString(Text_FIELD);
+            System.out.println("*************************************************text " + msg);
+//            String msg = text;
+            String pattern = "^MsgSeqNum too low, expecting\\W*(\\d+) but received (\\d+)";
+//        String pattern = "(\\d+)";
+            // 创建 Pattern 对象
+            Pattern r = Pattern.compile(pattern);
+
+            // 现在创建 matcher 对象
+            Matcher m = r.matcher(msg);
+            if (m.find()) {
+                System.out.println("Found value: " + m.group(0));
+                System.out.println("Found value: " + m.group(1));
+                System.out.println("Found value: " + m.group(2));
+                expectedSeqSum = Integer.parseInt(m.group(1));
+//            System.out.println("Found value: " + m.group(3) );
+            } else {
+                System.out.println("NO MATCH");
+            }
+        }
+
+
+
 
     }
 
@@ -252,54 +273,48 @@ public class FooApplication extends MessageCracker implements Application {
         System.out.println("ExecutionReport:" + message.toString());
 //        String account = msg.GetString(Tags.Account);
 //        Decimal price = msg.GetDecimal(Tags.Price);
-        if(message.getExecType().getValue()== ExecType.NEW) {
+        if (message.getExecType().getValue() == ExecType.NEW) {
 
             System.out.println("message.getExecType().getValue()== ExecType.NEW:" + message.toString());
 
 
-        }else if(message.getOrdStatus().getValue()==OrdStatus.NEW){
-            System.out.println("message.getOrdStatus().getValue()==ExecType.NEW:" + message.toString());
-        }else {
+        } else if (message.getOrdStatus().getValue() == OrdStatus.NEW) {
+            System.out.println("message.getOrdStatus().getValue()==OrdStatus.NEW:" + message.toString());
+        } else {
             return;
         }
 
         String datetmp = "";
-        if(message. getExecID().valueEquals("0")){
+        if (message.getExecID().valueEquals("0")) {
             //NO exce ID, ignore it
             System.out.println("NO exce ID, ignore it:" + message.toString());
         }
         String tmpdate = message.getDate();
-        if(tmpdate == null)
-        {
+        if (tmpdate == null) {
 
-        }else
-        {
+        } else {
             System.out.println(tmpdate);
-            String tmpDateArray[]= tmpdate.split("-");
+            String tmpDateArray[] = tmpdate.split("-");
             datetmp = tmpDateArray[0];
         }
         String account = message.getAccount().getValue();
 
 
-
-
         String exchange = message.getSecurityExchange().getValue();
         String Symbol = message.getSymbol().getValue();
         char sidetmp = message.getSide().getValue();
-        String tmpquant = "" +message.getLastQty().getValue();
+        String tmpquant = "" + message.getLastQty().getValue();
         String str_side = "";
-        if (sidetmp == Side.SELL)
-        {
+        if (sidetmp == Side.SELL) {
             str_side = "SELL";
-        }else
-        {
+        } else {
             str_side = "BUY";
         }
-        String tmprice = ""+message.getPrice().getValue();
+        String tmprice = "" + message.getPrice().getValue();
         String order_id = message.getOrderID().getValue();
-        char ExecType= message.getExecType().getValue();
+        char ExecType = message.getExecType().getValue();
         String str_ExecType = "";
-        if (ExecType == '0'){
+        if (ExecType == '0') {
             str_ExecType = "NEW";
         }
         char orderStatus = message.getOrdStatus().getValue();
@@ -307,16 +322,18 @@ public class FooApplication extends MessageCracker implements Application {
         final int OffSet_FIELD = 5001;
         String offset = message.getString(OffSet_FIELD);
         final int HedgeFlag_FIELD = 5006;
-        String hedgeFlag = message.getString(OffSet_FIELD);
+        String hedgeFlag = message.getString(HedgeFlag_FIELD);
         double qty = message.getOrderQty().getValue();
         double leavesQty = message.getLeavesQty().getValue();
 //        char offset = message.getDiscretionOffsetValue();
 //        char offset = messat();
         String parse_tag = " ";
+//        10013102 SHFE ag1808 BUY 1.0 4630.0 NEW 0 1 1.0 1 SHFE 16
+//        10013101 SHFE ag1812 BUY 1.0 3900.0 NEW 0 1 1.0 1 SHFE 8
 //        10013102 DCE j1705 SELL 0.0 2053.0 0 15
-        System.out.println("" + account + parse_tag + exchange + parse_tag + Symbol+ parse_tag + str_side +
+        System.out.println("" + account + parse_tag + exchange + parse_tag + Symbol + parse_tag + str_side +
                 parse_tag + qty + parse_tag + tmprice + parse_tag + str_ExecType + parse_tag + orderStatus + parse_tag
-                + offset + parse_tag + leavesQty + parse_tag +hedgeFlag + parse_tag + exchange_name
+                + offset + parse_tag + leavesQty + parse_tag + hedgeFlag + parse_tag + exchange_name
                 + parse_tag + order_id);
 
     }
@@ -329,9 +346,9 @@ public class FooApplication extends MessageCracker implements Application {
         quickfix.fix44.NewOrderSingle m = QueryNewOrderSingle44();
 
         if (m != null) {
-//            m.Header.GetField(tags.BeginString);
 
-//            SendMessage(m);
+
+            SendMessage(m);
             System.out.println("\n==================Order Submitted!!!==================");
 
         }
@@ -340,7 +357,7 @@ public class FooApplication extends MessageCracker implements Application {
     private quickfix.fix44.NewOrderSingle QueryNewOrderSingle44() {
         quickfix.field.TriggerOrderType ordType = null;
 //        quickfix.field.AllocNoOrdersType
-
+//        quickfix.fix44.ResendRequest newResendRequest = new quickfix.fix44.ResendRequest();
         quickfix.fix44.NewOrderSingle newOrderSingleRequest = new quickfix.fix44.NewOrderSingle();
         newOrderSingleRequest.set(new ClOrdID("test"));
         newOrderSingleRequest.set(new OrderQty(1));
